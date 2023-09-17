@@ -6,18 +6,34 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"vassaneer-tg-bot/internal/app"
 )
 
-func (n *Notion) Add(amount float64, category, title string) error {
-	props := map[string]interface{}{
-		"amount":   NewAmountProperty(amount),
-		"category": NewCategoryProperty(category),
+func (n *Notion) Add(cmd app.ReturnCommand) error {
+	props := make(map[string]interface{})
+	for k, v := range cmd.Fields {
+		switch v.DataType {
+		case app.Number:
+			{
+				props[k] = NewNumberProperty(v.Value.(float64))
+			}
+		case app.Select:
+			{
+				props[k] = NewSelectProperty(v.Value.(string))
+			}
+		case app.Title:
+			{
+				title := v.Value.(string)
+				if title != "" {
+					props[k] = NewTitleProperty(title)
+				} else {
+					props[k] = NewTitleProperty(fmt.Sprintf("B spend with %s", title))
+				}
+			}
+		}
 	}
-	if title != "" {
-		props["title"] = NewTitleProperty(title)
-	} else {
-		props["title"] = NewTitleProperty(fmt.Sprintf("B %.2f spend with %s", amount, title))
-	}
+
+	//
 	payload := NotionPostPayload{
 		Parent: Parent{
 			Type:       "database_id",

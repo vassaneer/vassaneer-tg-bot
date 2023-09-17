@@ -3,12 +3,13 @@ package main
 import (
 	"log/slog"
 	"os"
+	"strings"
 )
 
 type Envs struct {
 	TelegramBotToken string
 	NotionSecret     string
-	NotionDatabaseID string
+	NotionDatabaseID map[string]string
 	Port             string
 }
 
@@ -24,6 +25,14 @@ func loadEnv(logger *slog.Logger) Envs {
 		os.Exit(1)
 	}
 	notionDatabase, ok := os.LookupEnv("NOTION_DATABASE_ID")
+	// seperate by K_1:V_1,...,K_N,V_N
+	entriesDatebase := strings.Split(notionDatabase, ",")
+	notionDatabases := make(map[string]string)
+	for _, e := range entriesDatebase {
+		parts := strings.Split(e, ":")
+		notionDatabases[parts[0]] = parts[1]
+	}
+
 	if !ok {
 		logger.Error("NOTION_DATABASE_ID env isn't set")
 		os.Exit(1)
@@ -36,7 +45,7 @@ func loadEnv(logger *slog.Logger) Envs {
 	return Envs{
 		TelegramBotToken: tgBotToken,
 		NotionSecret:     notionSecret,
-		NotionDatabaseID: notionDatabase,
+		NotionDatabaseID: notionDatabases,
 		Port:             port,
 	}
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -26,8 +25,15 @@ func main() {
 	}
 
 	logger.Info("Authorized on account %s", bot.Self.UserName)
-	notionHandler := notion.NewNotion(envs.NotionDatabaseID, envs.NotionSecret, logger)
-	service := app.NewService(notionHandler, bot, logger)
+
+	notionHandlers := make(map[string]*app.NotionHandlers)
+	for k, v := range envs.NotionDatabaseID {
+		notionHandlers[k] = app.NewHandler(notion.NewNotion(v, envs.NotionSecret, logger))
+	}
+
+	//notionHandlers["exercise"] = app.NewHandler(notion.NewNotion(envs.NotionDatabaseID, envs.NotionSecret, logger))
+
+	service := app.NewService(notionHandlers, bot, logger)
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -43,10 +49,10 @@ func main() {
 			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		}
 		if tgUpdate != nil && tgUpdate.Message != nil {
-			logger.LogAttrs(context.Background(), slog.LevelInfo, "message details",
-				slog.Int64("senderId", tgUpdate.Message.From.ID),
-				slog.Int64("chatId", tgUpdate.Message.Chat.ID),
-			)
+			// logger.LogAttrs(context.Background(), slog.LevelInfo, "message details",
+			// 	slog.Int64("senderId", tgUpdate.Message.From.ID),
+			// 	slog.Int64("chatId", tgUpdate.Message.Chat.ID),
+			// )
 			service.HandleWebhook(tgUpdate)
 		}
 		w.Header().Set("Content-Type", "application/json")

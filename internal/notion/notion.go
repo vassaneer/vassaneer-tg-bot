@@ -46,18 +46,29 @@ func NewTitleProperty(title string) map[string]interface{} {
 	}
 }
 
-func NewAmountProperty(amount float64) map[string]interface{} {
+func NewNumberProperty(amount float64) map[string]interface{} {
 	return map[string]interface{}{
 		"type":   "number",
 		"number": amount,
 	}
 }
 
-func NewCategoryProperty(category string) map[string]interface{} {
+func NewSelectProperty(category string) map[string]interface{} {
 	return map[string]interface{}{
 		"type": "select",
 		"select": map[string]interface{}{
 			"name": category,
+		},
+	}
+}
+
+func NewRelationProperty(database string, fieldName string, fieldId string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": "relation",
+		"select": map[string]interface{}{
+			"database_id":          database,
+			"synced_property_name": fieldName,
+			"synced_property_id":   fieldId,
 		},
 	}
 }
