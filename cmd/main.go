@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -49,10 +50,10 @@ func main() {
 			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		}
 		if tgUpdate != nil && tgUpdate.Message != nil {
-			// logger.LogAttrs(context.Background(), slog.LevelInfo, "message details",
-			// 	slog.Int64("senderId", tgUpdate.Message.From.ID),
-			// 	slog.Int64("chatId", tgUpdate.Message.Chat.ID),
-			// )
+			logger.LogAttrs(context.Background(), slog.LevelInfo, "message details",
+				slog.Int64("senderId", tgUpdate.Message.From.ID),
+				slog.Int64("chatId", tgUpdate.Message.Chat.ID),
+			)
 			service.HandleWebhook(tgUpdate)
 		}
 		w.Header().Set("Content-Type", "application/json")
