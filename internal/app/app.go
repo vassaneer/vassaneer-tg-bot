@@ -84,7 +84,7 @@ func (s *Service) HandleWebhook(update *tgbotapi.Update) error {
 					s.tgBot.Send(msg)
 					return nil
 				}
-				messageText := fmt.Sprintf("Workout %s is %dX%d", resp.Fields["Name"].Value, resp.Fields["Weight"].Value, resp.Fields["Rep"].Value)
+				messageText := fmt.Sprintf("Workout %s is %.0fX%.0f", resp.Fields["Name"].Value, resp.Fields["Weight"].Value, resp.Fields["Rep"].Value)
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, messageText)
 				s.tgBot.Send(msg)
 				s.logger.Info("value is added")
