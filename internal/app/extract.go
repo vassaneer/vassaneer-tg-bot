@@ -40,3 +40,20 @@ func RepCommandExtract(subMatchs []string, srv *Service) map[string]Field {
 
 	return map[string]Field{"Name": Field{DataType: Title, Value: Name}, "Weight": Field{DataType: Number, Value: Weight}, "Rep": Field{DataType: Number, Value: Rep}}
 }
+
+func ArticleCommandExtract(subMatchs []string, srv *Service) map[string]Field {
+	if len(subMatchs) < 3 {
+		srv.logger.Info("Cannot extract name, weight and rep from command message",
+			slog.String("subMathches", strings.Join(subMatchs, ",")))
+		return map[string]Field{}
+	}
+	Name := ""
+	if len(subMatchs) > 3 && subMatchs[3] != "" {
+		Name = subMatchs[1]
+	}
+
+	Source := getSource(subMatchs[2])
+	Link := subMatchs[3]
+
+	return map[string]Field{"Name": Field{DataType: Title, Value: Name}, "Source": Field{DataType: Select, Value: Source}, "Link": Field{DataType: Title, Value: Link}}
+}

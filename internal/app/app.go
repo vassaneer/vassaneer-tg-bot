@@ -40,7 +40,8 @@ func (s *Service) HandleWebhook(update *tgbotapi.Update) error {
 	ExpenseCommand := NewCommand("expense", `^(\d+(?:\.\d{1,2})?)([ftcgbm])\s*(.+)?$`)
 	ExerciseCommand := NewCommand("excercise", ``)
 	RepCommand := NewCommand("rep", `^(\w+)\s*(\d+)[X](\d+)`)
-	CommandHandler := NewCommandHandler([]*Command{ExpenseCommand, ExerciseCommand, RepCommand})
+	ArticleCommand := NewCommand("article", `^(\w+)\s*([fwx])\s*(\w+)$`)
+	CommandHandler := NewCommandHandler([]*Command{ExpenseCommand, ExerciseCommand, RepCommand, ArticleCommand})
 	if update.Message == nil {
 		return nil
 	}
@@ -89,11 +90,44 @@ func (s *Service) HandleWebhook(update *tgbotapi.Update) error {
 				s.tgBot.Send(msg)
 				s.logger.Info("value is added")
 			}
+		case ArticleCommand:
+			{
+				resp := ArticleCommand.extract(text, s, ArticleCommandExtract)
+				err := s.notions["article"].notion.Add(resp)
+				if err != nil {
+					s.logger.Error("Error when adding expense to Notion",
+						slog.String("errorMessage", err.Error()),
+						slog.String("command", "expense"),
+						slog.String("commandMessage", text),
+					)
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "something happens with Notion. check system log in Cloud Run Logs.")
+					msg.ReplyToMessageID = update.Message.MessageID
+					s.tgBot.Send(msg)
+					return nil
+				}
+				messageText := fmt.Sprintf("Doc %s from %s", resp.Fields["Name"].Value, resp.Fields["Link"].Value)
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, messageText)
+				s.tgBot.Send(msg)
+				s.logger.Info("value is added")
+			}
 		}
+
 	}
 	return nil
 }
 
+func getSource(s string) string {
+	switch s {
+	case "f":
+		return "Facebook"
+	case "x":
+		return "X"
+	case "w":
+		return "Website"
+	default:
+		return "unknown"
+	}
+}
 func getCategory(s string) string {
 	switch s {
 	case "b":
