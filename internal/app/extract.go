@@ -53,7 +53,7 @@ func ArticleCommandExtract(subMatchs []string, srv *Service) map[string]Field {
 	}
 
 	Source := getSource(subMatchs[2])
-	Link := subMatchs[3]
+	Link_ := subMatchs[3]
 
-	return map[string]Field{"Name": Field{DataType: Title, Value: Name}, "Source": Field{DataType: Select, Value: Source}, "Link": Field{DataType: Title, Value: Link}}
+	return map[string]Field{"Name": Field{DataType: Title, Value: Name}, "Source": Field{DataType: Select, Value: Source}, "Link": Field{DataType: Url, Value: Link_}}
 }

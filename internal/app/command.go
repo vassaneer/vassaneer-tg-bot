@@ -13,6 +13,7 @@ const (
 	Number
 	Title
 	Select
+	Url
 )
 
 type ReturnCommand struct {

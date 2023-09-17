@@ -30,6 +30,10 @@ func (n *Notion) Add(cmd app.ReturnCommand) error {
 					props[k] = NewTitleProperty(fmt.Sprintf("B spend with %s", title))
 				}
 			}
+		case app.Url:
+			{
+				props[k] = NewUrlProperty(v.Value.(string))
+			}
 		}
 	}
 

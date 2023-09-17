@@ -53,6 +53,13 @@ func NewNumberProperty(amount float64) map[string]interface{} {
 	}
 }
 
+func NewUrlProperty(s string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": "url",
+		"url":  s,
+	}
+}
+
 func NewSelectProperty(category string) map[string]interface{} {
 	return map[string]interface{}{
 		"type": "select",
